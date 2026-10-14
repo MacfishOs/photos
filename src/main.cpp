@@ -15,6 +15,7 @@
 #include <QUrl>
 #include <QDir>
 #include <QCommandLineParser>
+#include <QPixmapCache>
 
 #include "photosapp.h"
 #include "photomodel.h"
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
+    QPixmapCache::setCacheLimit(4096);
     app.setApplicationName("cutefish-photos");
     app.setApplicationDisplayName("Photos");
     app.setOrganizationName("CutefishOS");

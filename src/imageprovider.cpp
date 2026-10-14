@@ -19,8 +19,8 @@
 ThumbnailProvider::ThumbnailProvider()
     : QQuickImageProvider(QQuickImageProvider::Image)
 {
-    // 160 MB fast in-memory thumbnail cache
-    m_cache.setMaxCost(160 * 1024 * 1024);
+    // 64 MB fast in-memory thumbnail cache
+    m_cache.setMaxCost(64 * 1024 * 1024);
 
     // Persistent disk thumbnail cache
     QString cacheBase = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);

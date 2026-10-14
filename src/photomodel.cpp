@@ -377,7 +377,7 @@ bool PhotoModel::deletePhoto(int index)
     if (!app)
         return false;
 
-    bool ok = app->moveToTrash(path);
+    bool ok = app->deletePhoto(path);
     if (ok) {
         // Remove locally from items
         beginResetModel();

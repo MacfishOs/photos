@@ -94,9 +94,11 @@ Item {
         visible: false
         width: 1
         height: 1
+        sourceSize.width: 1920
+        sourceSize.height: 1080
         asynchronous: true
         cache: true
-        source: (viewer.currentIndex + 1 < photoModel.count) ? photoModel.pathOfIndex(viewer.currentIndex + 1) : ""
+        source: (viewer.currentIndex + 1 < photoModel.count) ? ("file://" + photoModel.pathOfIndex(viewer.currentIndex + 1)) : ""
     }
 
     Image {
@@ -104,9 +106,11 @@ Item {
         visible: false
         width: 1
         height: 1
+        sourceSize.width: 1920
+        sourceSize.height: 1080
         asynchronous: true
         cache: true
-        source: (viewer.currentIndex > 0) ? photoModel.pathOfIndex(viewer.currentIndex - 1) : ""
+        source: (viewer.currentIndex > 0) ? ("file://" + photoModel.pathOfIndex(viewer.currentIndex - 1)) : ""
     }
 
     // Background Canvas
@@ -175,10 +179,6 @@ Item {
             height: mainImage.implicitHeight * viewer.zoomFactor
             x: (viewport.width - width) / 2
             y: (viewport.height - height) / 2
-
-            Behavior on zoomFactor {
-                NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
-            }
 
             // Low-res thumbnail instant placeholder (prevents blank screen during decode)
             Image {
