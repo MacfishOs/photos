@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <!-- Squircle Base -->
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#FFFFFF" filter="url(#shadow)"/>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="0.5"/>
+  
+  <!-- 8 Harmonious Translucent Flat Petals -->
+  <g transform="rotate(0 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#FF453A" opacity="0.92"/>
+  </g>
+  <g transform="rotate(45 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#FF9F0A" opacity="0.92"/>
+  </g>
+  <g transform="rotate(90 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#FFD60A" opacity="0.92"/>
+  </g>
+  <g transform="rotate(135 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#30D158" opacity="0.92"/>
+  </g>
+  <g transform="rotate(180 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#64D2FF" opacity="0.92"/>
+  </g>
+  <g transform="rotate(225 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#0A84FF" opacity="0.92"/>
+  </g>
+  <g transform="rotate(270 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#5E5CE6" opacity="0.92"/>
+  </g>
+  <g transform="rotate(315 32 32)">
+    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#BF5AF2" opacity="0.92"/>
+  </g>
+
+  <!-- Clean Flat Center Cutout -->
+  <circle cx="32" cy="32" r="3.75" fill="#FFFFFF"/>
+</svg>
