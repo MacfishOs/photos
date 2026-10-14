@@ -1,6 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
-  <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M5 3.5h7.5L17 8v10.5a1.5 1.5 0 0 1-1.5 1.5H5a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 5 3.5z"/>
-    <path d="M12.5 3.5V8H17M7.5 12h7M7.5 15.5h5"/>
-  </g>
+  <defs>
+    <style id="current-color-scheme" type="text/css">
+      .ColorScheme-Text { color:#363636; }
+    </style>
+  </defs>
+  <path class="ColorScheme-Text" fill="currentColor" fill-rule="evenodd" d="M 5 2 C 3.6 2 2.5 3.1 2.5 4.5 L 2.5 17.5 C 2.5 18.9 3.6 20 5 20 L 17 20 C 18.4 20 19.5 18.9 19.5 17.5 L 19.5 8 L 14 8 C 12.9 8 12 7.1 12 6 L 12 2 Z M 6 11 C 5.4 11 5 11.4 5 12 C 5 12.6 5.4 13 6 13 L 13.5 13 C 14.1 13 14.5 12.6 14.5 12 C 14.5 11.4 14.1 11 13.5 11 Z M 6 15 C 5.4 15 5 15.4 5 16 C 5 16.6 5.4 17 6 17 L 16 17 C 16.6 17 17 16.6 17 16 C 17 15.4 16.6 15 16 15 Z"/>
+  <path class="ColorScheme-Text" fill="currentColor" d="M 13.8 2.3 L 19.2 7.7 C 19.4 7.9 19.3 8 19 8 L 14.5 8 C 14.1 8 13.8 7.7 13.8 7.3 Z"/>
 </svg>
