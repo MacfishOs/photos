@@ -29,9 +29,9 @@
 int main(int argc, char *argv[])
 {
 #ifdef __GLIBC__
-    mallopt(M_ARENA_MAX, 2);
-    mallopt(M_TRIM_THRESHOLD, 128 * 1024);
-    mallopt(M_MMAP_THRESHOLD, 64 * 1024);
+    mallopt(M_ARENA_MAX, 1);
+    mallopt(M_TRIM_THRESHOLD, 64 * 1024);
+    mallopt(M_MMAP_THRESHOLD, 32 * 1024);
 #endif
 
     // Dynamic EGL vendor selection to prevent NVIDIA driver bloat on Intel/AMD GPUs
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
-    QPixmapCache::setCacheLimit(4096);
+    QPixmapCache::setCacheLimit(2048);
 
     // Trim freed memory after startup and periodically
     QTimer::singleShot(2000, []() {

@@ -179,7 +179,7 @@ Item {
                             Layout.preferredHeight: 18
                             Layout.alignment: Qt.AlignVCenter
                             source: model.icon ? model.icon : "qrc:/images/sidebar-folder.svg"
-                            color: isSelected ? "#FFFFFF" : FishUI.Theme.textColor
+                            color: isSelected ? "#FFFFFF" : (FishUI.Theme.darkMode ? "#0A84FF" : "#007AFF")
                         }
 
                         Label {
