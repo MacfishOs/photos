@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Photos
+Name[zh_CN]=相册
+GenericName=Photo Viewer
+GenericName[zh_CN]=图片查看器
+Comment=Project Aevis Photo Viewer
+Comment[zh_CN]=Aevis 图片查看与管理
+Exec=/usr/bin/aevis-photos %U
+TryExec=aevis-photos
+Icon=aevis-photos
+Terminal=false
+Type=Application
+StartupNotify=true
+StartupWMClass=aevis-photos
+MimeType=image/jpeg;image/png;image/gif;image/bmp;image/webp;image/svg+xml;image/tiff;
+Categories=Graphics;Photography;Viewer;Qt;
