@@ -9,6 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(GNUInstallDirs)
 
 set(QT Core Gui Widgets Quick QuickControls2 DBus Concurrent LinguistTools)
 find_package(Qt6 REQUIRED ${QT})
@@ -52,9 +53,14 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/bin)
 
 install(FILES
     cutefish-photos.desktop
+    aevis-photos.desktop
     DESTINATION /usr/share/applications/
     COMPONENT Runtime
 )
 
 install(FILES ${QM_FILES} DESTINATION /usr/share/${PROJECT_NAME}/translations)
+install(FILES ${QM_FILES} DESTINATION /usr/share/aevis-photos/translations)
 install(FILES src/images/cutefish-photos.svg DESTINATION /usr/share/icons/hicolor/scalable/apps)
+install(FILES src/images/cutefish-photos.svg DESTINATION /usr/share/icons/hicolor/scalable/apps RENAME aevis-photos.svg)
+
+install(CODE "execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink ${PROJECT_NAME} \$ENV{DESTDIR}\${CMAKE_INSTALL_FULL_BINDIR}/aevis-photos)")

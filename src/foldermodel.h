@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Folder Model for Cutefish Photos Sidebar
  */

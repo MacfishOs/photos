@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Cutefish Photos Application
  */
@@ -28,9 +29,9 @@ FishUI.Window {
     header.height: 40
     contentTopMargin: 0
 
-    property string viewMode: "gallery" // "gallery" or "viewer"
+    property string viewMode: (initialImagePath && initialImagePath.length > 0) ? "viewer" : "gallery"
     property int currentPhotoIndex: -1
-    property string currentPhotoPath: ""
+    property string currentPhotoPath: (initialImagePath && initialImagePath.length > 0) ? initialImagePath : ""
     property string currentFolderName: qsTr("All Photos")
 
     // Backend Models
@@ -55,6 +56,21 @@ FishUI.Window {
         target: PhotosApp
         function onActionFeedback(message, success) {
             rootWindow.showToast(message, success)
+        }
+    }
+
+    Connections {
+        target: photoModel
+        function onCountChanged() {
+            if (rootWindow.currentPhotoPath !== "" && rootWindow.currentPhotoIndex < 0) {
+                var pIdx = photoModel.indexOfPath(rootWindow.currentPhotoPath)
+                if (pIdx >= 0) {
+                    rootWindow.currentPhotoIndex = pIdx
+                    if (galleryView) {
+                        galleryView.selectedIndex = pIdx
+                    }
+                }
+            }
         }
     }
 
@@ -96,6 +112,8 @@ FishUI.Window {
 
     Component.onCompleted: {
         if (initialImagePath && initialImagePath.length > 0) {
+            rootWindow.currentPhotoPath = initialImagePath
+            rootWindow.viewMode = "viewer"
             var parentDir = PhotosApp.parentDirectory(initialImagePath)
             folderModel.addCustomFolder(parentDir)
             var fIdx = folderModel.indexOfPath(parentDir)
@@ -103,12 +121,6 @@ FishUI.Window {
                 sideBar.currentIndex = fIdx
             }
             photoModel.load(parentDir, "folder")
-            var pIdx = photoModel.indexOfPath(initialImagePath)
-            if (pIdx >= 0) {
-                openViewer(pIdx)
-            } else if (photoModel.count > 0) {
-                openViewer(0)
-            }
         }
     }
 
@@ -414,7 +426,7 @@ FishUI.Window {
                             }
 
                             Rectangle {
-                                visible: photoModel.count > 0
+                                visible: photoModel.count > 0 && rootWindow.currentPhotoIndex >= 0
                                 implicitWidth: posBadgeText.implicitWidth + 8
                                 implicitHeight: 16
                                 radius: 8

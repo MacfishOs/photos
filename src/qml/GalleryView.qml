@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Cutefish Photos Gallery View - High Performance & Fluid Grid
  */
@@ -42,6 +43,17 @@ Item {
         cacheBuffer: Math.max(1200, gridView.height * 2.5)
         maximumFlickVelocity: 4000
         boundsBehavior: Flickable.StopAtBounds
+        reuseItems: true
+        focus: true
+
+        Keys.onReturnPressed: {
+            if (galleryView.selectedIndex >= 0)
+                galleryView.photoDoubleClicked(galleryView.selectedIndex)
+        }
+        Keys.onEnterPressed: {
+            if (galleryView.selectedIndex >= 0)
+                galleryView.photoDoubleClicked(galleryView.selectedIndex)
+        }
 
         FishUI.WheelHandler {
             target: gridView
@@ -95,7 +107,6 @@ Item {
                             fillMode: Image.PreserveAspectCrop
                             asynchronous: true
                             smooth: true
-                            mipmap: true
                         }
                     }
 

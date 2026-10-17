@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Ultra-Fluid Cutefish Built-in Image Viewer
  */
@@ -15,9 +16,9 @@ Item {
     clip: true
 
     property int currentIndex: rootWindow.currentPhotoIndex
-    property var currentPhoto: photoModel.get(currentIndex)
-    property string currentPath: currentPhoto ? (currentPhoto.path || "") : ""
-    property url currentUrl: currentPhoto ? (currentPhoto.url || "") : ""
+    property var currentPhoto: (currentIndex >= 0 && currentIndex < photoModel.count) ? photoModel.get(currentIndex) : null
+    property string currentPath: currentPhoto && currentPhoto.path ? currentPhoto.path : rootWindow.currentPhotoPath
+    property url currentUrl: currentPhoto && currentPhoto.url ? currentPhoto.url : (rootWindow.currentPhotoPath !== "" ? PhotosApp.localFileUrl(rootWindow.currentPhotoPath) : "")
 
     property real zoomFactor: 1.0
     property real minZoom: 0.1
@@ -98,7 +99,7 @@ Item {
         sourceSize.height: 1080
         asynchronous: true
         cache: true
-        source: (viewer.currentIndex + 1 < photoModel.count) ? ("file://" + photoModel.pathOfIndex(viewer.currentIndex + 1)) : ""
+        source: (viewer.currentIndex >= 0 && viewer.currentIndex + 1 < photoModel.count) ? ("file://" + photoModel.pathOfIndex(viewer.currentIndex + 1)) : ""
     }
 
     Image {
@@ -184,7 +185,7 @@ Item {
             Image {
                 id: thumbPlaceholder
                 anchors.fill: parent
-                source: "image://photothumb/" + viewer.currentPath + "?w=600&h=600"
+                source: viewer.currentPath !== "" ? ("image://photothumb/" + viewer.currentPath + "?w=600&h=600") : ""
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
                 smooth: true
@@ -290,7 +291,7 @@ Item {
                                            : (FishUI.Theme.darkMode ? Qt.rgba(0.1, 0.1, 0.12, 0.6) : Qt.rgba(1, 1, 1, 0.75))
             border.width: 1
             border.color: FishUI.Theme.glassBorderColor
-            visible: viewer.currentIndex < photoModel.count - 1
+            visible: viewer.currentIndex >= 0 && viewer.currentIndex < photoModel.count - 1
             opacity: viewportMouseArea.containsMouse || nextMouse.containsMouse ? 1.0 : 0.0
 
             Behavior on opacity {
@@ -321,8 +322,8 @@ Item {
             anchors.bottomMargin: 14
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(parent.width - 40, Math.max(300, photoModel.count * 68 + 24))
-            currentIndex: viewer.currentIndex
-            visible: viewer.filmStripVisible && photoModel.count > 1
+            currentIndex: Math.max(0, viewer.currentIndex)
+            visible: viewer.filmStripVisible && photoModel.count > 1 && viewer.currentIndex >= 0
             opacity: visible ? 1.0 : 0.0
 
             Behavior on opacity {
@@ -455,66 +456,82 @@ Item {
     // -----------------------------------------------------------------
     Shortcut {
         sequence: "Left"
+        enabled: viewer.visible
         onActivated: viewer.prevRequested()
     }
     Shortcut {
         sequence: "Right"
+        enabled: viewer.visible
         onActivated: viewer.nextRequested()
     }
     Shortcut {
         sequence: "Escape"
+        enabled: viewer.visible
         onActivated: viewer.backRequested()
     }
     Shortcut {
         sequence: "Backspace"
+        enabled: viewer.visible
         onActivated: viewer.backRequested()
     }
     Shortcut {
         sequence: "+"
+        enabled: viewer.visible
         onActivated: viewer.zoomIn()
     }
     Shortcut {
         sequence: "="
+        enabled: viewer.visible
         onActivated: viewer.zoomIn()
     }
     Shortcut {
         sequence: "-"
+        enabled: viewer.visible
         onActivated: viewer.zoomOut()
     }
     Shortcut {
         sequence: "0"
+        enabled: viewer.visible
         onActivated: viewer.fitToScreen()
     }
     Shortcut {
         sequence: "1"
+        enabled: viewer.visible
         onActivated: viewer.setZoom(1.0)
     }
     Shortcut {
         sequence: "R"
+        enabled: viewer.visible
         onActivated: viewer.rotateClockwise()
     }
     Shortcut {
         sequence: "Shift+R"
+        enabled: viewer.visible
         onActivated: viewer.rotateCounterClockwise()
     }
     Shortcut {
         sequence: "L"
+        enabled: viewer.visible
         onActivated: viewer.rotateCounterClockwise()
     }
     Shortcut {
         sequence: "H"
+        enabled: viewer.visible
         onActivated: viewer.toggleFlip()
     }
     Shortcut {
         sequence: "I"
+        enabled: viewer.visible
         onActivated: viewer.infoPanelVisible = !viewer.infoPanelVisible
     }
     Shortcut {
         sequence: "S"
+        enabled: viewer.visible
         onActivated: viewer.filmStripVisible = !viewer.filmStripVisible
     }
     Shortcut {
         sequence: "F"
+        enabled: viewer.visible
         onActivated: {
             if (rootWindow.visibility === Window.FullScreen) {
                 rootWindow.showNormal()
@@ -525,6 +542,7 @@ Item {
     }
     Shortcut {
         sequence: "F11"
+        enabled: viewer.visible
         onActivated: {
             if (rootWindow.visibility === Window.FullScreen) {
                 rootWindow.showNormal()
@@ -535,6 +553,7 @@ Item {
     }
     Shortcut {
         sequence: "Delete"
+        enabled: viewer.visible && viewer.currentIndex >= 0
         onActivated: rootWindow.confirmDeletePhoto(viewer.currentIndex)
     }
 }

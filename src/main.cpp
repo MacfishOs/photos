@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
- * Cutefish Photos Application Entry Point
+ * Project Aevis Photos Application Entry Point
  */
 
 #include <QApplication>
@@ -50,32 +51,18 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QPixmapCache::setCacheLimit(2048);
 
-    // Trim freed memory after startup and periodically
-    QTimer::singleShot(2000, []() {
-#ifdef __GLIBC__
-        malloc_trim(0);
-#endif
-    });
+    app.setApplicationName(QStringLiteral("aevis-photos"));
+    app.setDesktopFileName(QStringLiteral("aevis-photos"));
+    app.setApplicationDisplayName(QStringLiteral("Photos"));
+    app.setOrganizationName(QStringLiteral("aevis"));
+    app.setOrganizationDomain(QStringLiteral("aevis.org"));
 
-    QTimer *trimTimer = new QTimer(&app);
-    trimTimer->setInterval(45000);
-    QObject::connect(trimTimer, &QTimer::timeout, []() {
-#ifdef __GLIBC__
-        malloc_trim(0);
-#endif
-    });
-    trimTimer->start();
-    app.setApplicationName("cutefish-photos");
-    app.setApplicationDisplayName("Photos");
-    app.setOrganizationName("CutefishOS");
-    app.setOrganizationDomain("cutefishos.com");
-
-    QIcon appIcon = QIcon::fromTheme("cutefish-photos", QIcon(":/images/cutefish-photos.svg"));
+    QIcon appIcon = QIcon::fromTheme(QStringLiteral("aevis-photos"), QIcon::fromTheme(QStringLiteral("cutefish-photos"), QIcon(QStringLiteral(":/images/cutefish-photos.svg"))));
     app.setWindowIcon(appIcon);
 
     // Parse command line arguments (e.g. image file to open)
     QCommandLineParser parser;
-    parser.setApplicationDescription("Cutefish Photos and Image Viewer");
+    parser.setApplicationDescription(QStringLiteral("Project Aevis Photos and Image Viewer"));
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("file", "Image file to view");
@@ -85,20 +72,25 @@ int main(int argc, char *argv[])
     const QStringList args = parser.positionalArguments();
     if (!args.isEmpty()) {
         QString arg = args.first();
-        if (arg.startsWith("file://")) {
+        if (arg.startsWith(QLatin1String("file:"), Qt::CaseInsensitive)) {
             arg = QUrl(arg).toLocalFile();
         }
         QFileInfo fi(arg);
         if (fi.exists() && fi.isFile()) {
-            initialImagePath = fi.absoluteFilePath();
+            initialImagePath = fi.canonicalFilePath();
+            if (initialImagePath.isEmpty()) {
+                initialImagePath = fi.absoluteFilePath();
+            }
         }
     }
 
     PhotosApp *photosApp = new PhotosApp(&app);
 
-    qmlRegisterType<PhotoModel>("Cutefish.Photos", 1, 0, "PhotoModel");
-    qmlRegisterType<FolderModel>("Cutefish.Photos", 1, 0, "FolderModel");
-    qmlRegisterSingletonInstance("Cutefish.Photos", 1, 0, "PhotosApp", photosApp);
+    for (const char *uri : {"Cutefish.Photos", "Aevis.Photos"}) {
+        qmlRegisterType<PhotoModel>(uri, 1, 0, "PhotoModel");
+        qmlRegisterType<FolderModel>(uri, 1, 0, "FolderModel");
+        qmlRegisterSingletonInstance(uri, 1, 0, "PhotosApp", photosApp);
+    }
 
     QQmlApplicationEngine engine;
 
@@ -106,7 +98,10 @@ int main(int argc, char *argv[])
 
     // Translations
     QLocale locale;
-    QString qmFilePath = QString("/usr/share/cutefish-photos/translations/%1.qm").arg(locale.name());
+    QString qmFilePath = QStringLiteral("/usr/share/aevis-photos/translations/%1.qm").arg(locale.name());
+    if (!QFile::exists(qmFilePath)) {
+        qmFilePath = QStringLiteral("/usr/share/cutefish-photos/translations/%1.qm").arg(locale.name());
+    }
     if (QFile::exists(qmFilePath)) {
         QTranslator *translator = new QTranslator(&app);
         if (translator->load(qmFilePath)) {
@@ -121,9 +116,23 @@ int main(int argc, char *argv[])
     engine.addImportPath(QStringLiteral("qrc:/"));
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
-    if (engine.rootObjects().isEmpty()) {
-        return -1;
-    }
+    // Trim freed memory and unused QML components after startup and periodically
+    QTimer::singleShot(2000, [&engine]() {
+        engine.trimComponentCache();
+#ifdef __GLIBC__
+        malloc_trim(0);
+#endif
+    });
+
+    QTimer *trimTimer = new QTimer(&app);
+    trimTimer->setInterval(45000);
+    QObject::connect(trimTimer, &QTimer::timeout, [&engine]() {
+        engine.trimComponentCache();
+#ifdef __GLIBC__
+        malloc_trim(0);
+#endif
+    });
+    trimTimer->start();
 
     return app.exec();
 }

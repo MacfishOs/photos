@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Folder Model Implementation
  */
@@ -14,6 +15,19 @@
 #include <QFileInfo>
 #include <QSet>
 #include <QDebug>
+
+static QString photosConfigFile()
+{
+    QString aevisConfig = QDir::homePath() + "/.config/aevis/aevis-photos.conf";
+    if (QFile::exists(aevisConfig)) {
+        return aevisConfig;
+    }
+    QString legacyConfig = QDir::homePath() + "/.config/cutefishos/cutefish-photos.conf";
+    if (QFile::exists(legacyConfig)) {
+        return legacyConfig;
+    }
+    return aevisConfig;
+}
 
 static const QStringList supportedImageExtensions = {
     "*.jpg", "*.jpeg", "*.png", "*.webp", "*.bmp", "*.gif",
@@ -81,7 +95,7 @@ QHash<int, QByteArray> FolderModel::roleNames() const
 
 void FolderModel::loadCustomFolders()
 {
-    QSettings settings(QDir::homePath() + "/.config/cutefishos/cutefish-photos.conf", QSettings::IniFormat);
+    QSettings settings(photosConfigFile(), QSettings::IniFormat);
     settings.beginGroup("CustomFolders");
     m_customFolders = settings.value("paths").toStringList();
     settings.endGroup();
@@ -89,7 +103,9 @@ void FolderModel::loadCustomFolders()
 
 void FolderModel::saveCustomFolders()
 {
-    QSettings settings(QDir::homePath() + "/.config/cutefishos/cutefish-photos.conf", QSettings::IniFormat);
+    QString configPath = photosConfigFile();
+    QDir().mkpath(QFileInfo(configPath).dir().absolutePath());
+    QSettings settings(configPath, QSettings::IniFormat);
     settings.beginGroup("CustomFolders");
     settings.setValue("paths", m_customFolders);
     settings.endGroup();
@@ -149,32 +165,32 @@ void FolderModel::populateStandardFolders()
     QString wallpapersPath = "/usr/share/wallpapers";
 
     // 1. Library Section
-    m_items.append({ tr("All Photos"), "", "qrc:/images/sidebar-photos.svg", tr("Library"), "all", 0, false });
-    m_items.append({ tr("Favorites"), "", "qrc:/images/sidebar-favorites.svg", tr("Library"), "favorites", 0, false });
+    m_items.append({ tr("All Photos"), "", "qrc:/images/cp-sidebar-photos.svg", tr("Library"), "all", 0, false });
+    m_items.append({ tr("Favorites"), "", "qrc:/images/cp-sidebar-favorites.svg", tr("Library"), "favorites", 0, false });
 
     if (QDir(screenshotsPath).exists()) {
-        m_items.append({ tr("Screenshots"), screenshotsPath, "qrc:/images/sidebar-screenshots.svg", tr("Library"), "folder", 0, false });
+        m_items.append({ tr("Screenshots"), screenshotsPath, "qrc:/images/cp-sidebar-screenshots.svg", tr("Library"), "folder", 0, false });
     }
 
     if (QDir(wallpapersPath).exists()) {
-        m_items.append({ tr("Wallpapers"), wallpapersPath, "qrc:/images/sidebar-wallpapers.svg", tr("Library"), "folder", 0, false });
+        m_items.append({ tr("Wallpapers"), wallpapersPath, "qrc:/images/cp-sidebar-wallpapers.svg", tr("Library"), "folder", 0, false });
     }
 
     // 2. Places Section
     if (QDir(picturesPath).exists()) {
-        m_items.append({ tr("Pictures"), picturesPath, "qrc:/images/sidebar-pictures.svg", tr("Places"), "folder", 0, false });
+        m_items.append({ tr("Pictures"), picturesPath, "qrc:/images/cp-sidebar-pictures.svg", tr("Places"), "folder", 0, false });
     }
     if (QDir(downloadsPath).exists()) {
-        m_items.append({ tr("Downloads"), downloadsPath, "qrc:/images/sidebar-downloads.svg", tr("Places"), "folder", 0, false });
+        m_items.append({ tr("Downloads"), downloadsPath, "qrc:/images/cp-sidebar-downloads.svg", tr("Places"), "folder", 0, false });
     }
     if (QDir(desktopPath).exists()) {
-        m_items.append({ tr("Desktop"), desktopPath, "qrc:/images/sidebar-desktop.svg", tr("Places"), "folder", 0, false });
+        m_items.append({ tr("Desktop"), desktopPath, "qrc:/images/cp-sidebar-desktop.svg", tr("Places"), "folder", 0, false });
     }
     if (QDir(documentsPath).exists()) {
-        m_items.append({ tr("Documents"), documentsPath, "qrc:/images/sidebar-documents.svg", tr("Places"), "folder", 0, false });
+        m_items.append({ tr("Documents"), documentsPath, "qrc:/images/cp-sidebar-documents.svg", tr("Places"), "folder", 0, false });
     }
     if (QDir(homePath).exists()) {
-        m_items.append({ tr("Home"), homePath, "qrc:/images/sidebar-home.svg", tr("Places"), "folder", 0, false });
+        m_items.append({ tr("Home"), homePath, "qrc:/images/cp-sidebar-home.svg", tr("Places"), "folder", 0, false });
     }
 }
 
@@ -195,7 +211,7 @@ void FolderModel::scanSubfolders()
             QString fullSub = picDir.absoluteFilePath(sub);
             if (!addedPaths.contains(fullSub)) {
                 addedPaths.insert(fullSub);
-                m_items.append({ sub, fullSub, "qrc:/images/sidebar-folder.svg", tr("All Folders"), "folder", 0, false });
+                m_items.append({ sub, fullSub, "qrc:/images/cp-sidebar-folder.svg", tr("All Folders"), "folder", 0, false });
             }
         }
     }
@@ -209,7 +225,7 @@ void FolderModel::scanSubfolders()
             QString fullSub = dlDir.absoluteFilePath(sub);
             if (!addedPaths.contains(fullSub) && countPhotosInDir(fullSub, false) > 0) {
                 addedPaths.insert(fullSub);
-                m_items.append({ sub, fullSub, "qrc:/images/sidebar-folder.svg", tr("All Folders"), "folder", 0, false });
+                m_items.append({ sub, fullSub, "qrc:/images/cp-sidebar-folder.svg", tr("All Folders"), "folder", 0, false });
             }
         }
     }
@@ -219,7 +235,7 @@ void FolderModel::scanSubfolders()
         if (QDir(custom).exists() && !addedPaths.contains(custom)) {
             addedPaths.insert(custom);
             QFileInfo fi(custom);
-            m_items.append({ fi.fileName(), custom, "qrc:/images/sidebar-folder.svg", tr("All Folders"), "folder", 0, true });
+            m_items.append({ fi.fileName(), custom, "qrc:/images/cp-sidebar-folder.svg", tr("All Folders"), "folder", 0, true });
         }
     }
 }

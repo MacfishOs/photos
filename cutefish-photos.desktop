@@ -10,5 +10,6 @@ Icon=cutefish-photos
 Terminal=false
 Type=Application
 StartupNotify=true
+NoDisplay=true
 MimeType=image/jpeg;image/png;image/gif;image/bmp;image/webp;image/svg+xml;image/tiff;
 Categories=Graphics;Photography;Viewer;Qt;

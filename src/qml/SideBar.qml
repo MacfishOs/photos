@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Cutefish Photos Sidebar
  */
@@ -21,11 +22,20 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: FishUI.Theme.darkMode ? "#1A1B26" : "#E1E2E7"
-        opacity: FishUI.Theme.blurEnabled ? 0.85 : 1.0
+        color: FishUI.Theme.darkMode
+               ? Qt.rgba(0.10, 0.10, 0.14, FishUI.Theme.blurEnabled ? 0.76 : 0.98)
+               : Qt.rgba(0.95, 0.95, 0.97, FishUI.Theme.blurEnabled ? 0.72 : 0.98)
 
         Behavior on color {
             ColorAnimation { duration: 200 }
+        }
+
+        Rectangle {
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            width: 1
+            color: FishUI.Theme.glassBorderColor
         }
     }
 
@@ -62,6 +72,7 @@ Item {
                     width: 24
                     height: 24
                     source: "qrc:/images/cp-add.svg"
+                    iconColor: FishUI.Theme.darkMode ? "#0A84FF" : "#007AFF"
                     tooltip: qsTr("Add Folder...")
                     onClicked: {
                         var chosen = PhotosApp.pickFolder(qsTr("Add Photos Folder"))
@@ -130,6 +141,7 @@ Item {
                         iconWidth: 14
                         iconHeight: 14
                         source: "qrc:/images/cp-add.svg"
+                        iconColor: FishUI.Theme.darkMode ? "#0A84FF" : "#007AFF"
                         tooltip: qsTr("Add Folder to Sidebar")
                         onClicked: {
                             var path = PhotosApp.pickFolder()
@@ -178,7 +190,7 @@ Item {
                             Layout.preferredWidth: 18
                             Layout.preferredHeight: 18
                             Layout.alignment: Qt.AlignVCenter
-                            source: model.icon ? model.icon : "qrc:/images/sidebar-folder.svg"
+                            source: model.icon ? model.icon : "qrc:/images/cp-sidebar-folder.svg"
                             color: isSelected ? "#FFFFFF" : (FishUI.Theme.darkMode ? "#0A84FF" : "#007AFF")
                         }
 

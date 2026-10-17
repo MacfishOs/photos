@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Fast Thumbnail Image Provider Implementation with Two-tier Caching
  */
@@ -19,8 +20,8 @@
 ThumbnailProvider::ThumbnailProvider()
     : QQuickImageProvider(QQuickImageProvider::Image)
 {
-    // 64 MB fast in-memory thumbnail cache
-    m_cache.setMaxCost(64 * 1024 * 1024);
+    // 16 MB fast in-memory thumbnail cache (backed by fast persistent disk cache)
+    m_cache.setMaxCost(16 * 1024 * 1024);
 
     // Persistent disk thumbnail cache
     QString cacheBase = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);

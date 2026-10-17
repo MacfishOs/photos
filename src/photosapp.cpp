@@ -1,7 +1,8 @@
 /*
- * Copyright (C) 2026 CutefishOS Team.
+ * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
- * Cutefish Photos Application Backend Implementation
+ * Project Aevis Photos Application Backend Implementation
  */
 
 #include "photosapp.h"
@@ -28,6 +29,19 @@
 
 PhotosApp *PhotosApp::s_instance = nullptr;
 
+static QString photosConfigFile()
+{
+    QString aevisConfig = QDir::homePath() + "/.config/aevis/aevis-photos.conf";
+    if (QFile::exists(aevisConfig)) {
+        return aevisConfig;
+    }
+    QString legacyConfig = QDir::homePath() + "/.config/cutefishos/cutefish-photos.conf";
+    if (QFile::exists(legacyConfig)) {
+        return legacyConfig;
+    }
+    return aevisConfig;
+}
+
 PhotosApp::PhotosApp(QObject *parent)
     : QObject(parent)
 {
@@ -42,7 +56,7 @@ PhotosApp *PhotosApp::instance()
 
 void PhotosApp::loadFavorites()
 {
-    QSettings settings(QDir::homePath() + "/.config/cutefishos/cutefish-photos.conf", QSettings::IniFormat);
+    QSettings settings(photosConfigFile(), QSettings::IniFormat);
     settings.beginGroup("Favorites");
     QStringList list = settings.value("photos").toStringList();
     settings.endGroup();
@@ -57,7 +71,9 @@ void PhotosApp::loadFavorites()
 
 void PhotosApp::saveFavorites()
 {
-    QSettings settings(QDir::homePath() + "/.config/cutefishos/cutefish-photos.conf", QSettings::IniFormat);
+    QString configPath = photosConfigFile();
+    QDir().mkpath(QFileInfo(configPath).dir().absolutePath());
+    QSettings settings(configPath, QSettings::IniFormat);
     settings.beginGroup("Favorites");
     QStringList list;
     for (const QString &path : m_favorites) {
@@ -141,8 +157,9 @@ bool PhotosApp::showInFileManager(const QString &filePath)
     if (filePath.isEmpty() || !QFile::exists(filePath))
         return false;
 
-    // 1. Try launching Cutefish file manager directly
-    if (QProcess::startDetached("cutefish-filemanager", { "--select", filePath })) {
+    // 1. Try launching Aevis or Cutefish file manager directly
+    if (QProcess::startDetached("aevis-filemanager", { "--select", filePath }) ||
+        QProcess::startDetached("cutefish-filemanager", { "--select", filePath })) {
         emit actionFeedback(tr("Opened in File Manager"), true);
         return true;
     }
@@ -185,17 +202,67 @@ bool PhotosApp::setWallpaper(const QString &filePath)
 
     bool success = false;
 
-    // 1. Cutefish Appearance DBus Service
-    QDBusInterface cutefishAppearance("org.cutefish.Appearance",
-                                      "/org/cutefish/Appearance",
-                                      "org.cutefish.Appearance",
-                                      QDBusConnection::sessionBus());
-    if (cutefishAppearance.isValid()) {
-        cutefishAppearance.call("setWallpaper", filePath);
+    // 1. Aevis Appearance DBus Services
+    QDBusInterface ifaceAevis1("org.aevis.Appearance",
+                               "/org/aevis/Appearance",
+                               "org.aevis.Appearance",
+                               QDBusConnection::sessionBus());
+    if (ifaceAevis1.isValid()) {
+        ifaceAevis1.call("setWallpaper", filePath);
         success = true;
     }
 
-    // 2. Cutefish settings file (~/.config/cutefishos/cutefish.conf)
+    QDBusInterface ifaceAevis2("org.aevis.Services.Appearance",
+                               "/org/aevis/Services/Appearance",
+                               "org.aevis.Services.Appearance",
+                               QDBusConnection::sessionBus());
+    if (ifaceAevis2.isValid()) {
+        ifaceAevis2.call("setWallpaper", filePath);
+        success = true;
+    }
+
+    // 2. Cutefish Appearance DBus Services
+    QDBusInterface iface1("com.cutefish.Appearance",
+                         "/com/cutefish/Appearance",
+                         "com.cutefish.Appearance",
+                         QDBusConnection::sessionBus());
+    if (iface1.isValid()) {
+        iface1.call("setWallpaper", filePath);
+        success = true;
+    }
+
+    QDBusInterface iface2("org.cutefish.Appearance",
+                          "/org/cutefish/Appearance",
+                          "org.cutefish.Appearance",
+                          QDBusConnection::sessionBus());
+    if (iface2.isValid()) {
+        iface2.call("setWallpaper", filePath);
+        success = true;
+    }
+
+    // 3. Desktop Shell DBus notification (both Aevis & Cutefish)
+    QDBusMessage msgAevis = QDBusMessage::createSignal("/org/aevis/Appearance",
+                                                      "org.aevis.Appearance",
+                                                      "wallpaperChanged");
+    msgAevis << filePath;
+    QDBusConnection::sessionBus().send(msgAevis);
+
+    QDBusMessage msg = QDBusMessage::createSignal("/com/cutefish/Appearance",
+                                                  "com.cutefish.Appearance",
+                                                  "wallpaperChanged");
+    msg << filePath;
+    QDBusConnection::sessionBus().send(msg);
+
+    // 4. Aevis settings file (~/.config/aevis/theme.conf)
+    QString aevisConfigDir = QDir::homePath() + "/.config/aevis";
+    QDir().mkpath(aevisConfigDir);
+    QSettings aevisSettings(aevisConfigDir + "/theme.conf", QSettings::IniFormat);
+    aevisSettings.beginGroup("Theme");
+    aevisSettings.setValue("wallpaper", filePath);
+    aevisSettings.endGroup();
+    aevisSettings.sync();
+
+    // Cutefish settings file fallback (~/.config/cutefishos/cutefish.conf)
     QString configDir = QDir::homePath() + "/.config/cutefishos";
     QDir().mkpath(configDir);
     QSettings cfSettings(configDir + "/cutefish.conf", QSettings::IniFormat);
@@ -205,7 +272,7 @@ bool PhotosApp::setWallpaper(const QString &filePath)
     cfSettings.sync();
     success = true;
 
-    // 3. Fallback for GNOME/Cinnamon/MATE environments if run outside Cutefish shell
+    // 5. Fallback for GNOME/Cinnamon/MATE environments
     QProcess::execute("gsettings", { "set", "org.gnome.desktop.background", "picture-uri", QUrl::fromLocalFile(filePath).toString() });
     QProcess::execute("gsettings", { "set", "org.gnome.desktop.background", "picture-uri-dark", QUrl::fromLocalFile(filePath).toString() });
 
