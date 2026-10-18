@@ -52,7 +52,6 @@ add_dependencies(${PROJECT_NAME} translations)
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION /usr/bin)
 
 install(FILES
-    cutefish-photos.desktop
     aevis-photos.desktop
     DESTINATION /usr/share/applications/
     COMPONENT Runtime
