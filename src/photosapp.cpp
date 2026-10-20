@@ -202,82 +202,55 @@ bool PhotosApp::setWallpaper(const QString &filePath)
 
     bool success = false;
 
-    // 1. Aevis Appearance DBus Services
-    QDBusInterface ifaceAevis1("org.aevis.Appearance",
-                               "/org/aevis/Appearance",
-                               "org.aevis.Appearance",
-                               QDBusConnection::sessionBus());
-    if (ifaceAevis1.isValid()) {
-        ifaceAevis1.call("setWallpaper", filePath);
-        success = true;
+    // 1. DBus call to ThemeManager (Aevis / Cutefish Services)
+    struct DBusTarget {
+        const char *service;
+        const char *path;
+        const char *interface;
+    };
+
+    static const DBusTarget targets[] = {
+        { "org.aevis.Services", "/org/aevis/Services/Appearance", "org.aevis.Services.Appearance" },
+        { "com.cutefish.Services", "/com/cutefish/Services/Appearance", "com.cutefish.Services.Appearance" },
+        { "org.aevis.Services", "/org/aevis/Services/Appearance", "com.cutefish.Services.Appearance" },
+        { "com.cutefish.Services", "/com/cutefish/Services/Appearance", "org.aevis.Services.Appearance" },
+    };
+
+    for (const auto &target : targets) {
+        QDBusInterface iface(QString::fromLatin1(target.service),
+                             QString::fromLatin1(target.path),
+                             QString::fromLatin1(target.interface),
+                             QDBusConnection::sessionBus());
+        if (iface.isValid()) {
+            iface.call(QStringLiteral("setWallpaper"), filePath);
+            iface.call(QStringLiteral("setBackgroundType"), 0);
+            success = true;
+            break;
+        }
     }
 
-    QDBusInterface ifaceAevis2("org.aevis.Services.Appearance",
-                               "/org/aevis/Services/Appearance",
-                               "org.aevis.Services.Appearance",
-                               QDBusConnection::sessionBus());
-    if (ifaceAevis2.isValid()) {
-        ifaceAevis2.call("setWallpaper", filePath);
-        success = true;
-    }
+    // 2. Direct config save to ~/.config/aevis/theme.conf and ~/.config/cutefishos/theme.conf
+    const QString aevisDir = QDir::homePath() + QStringLiteral("/.config/aevis");
+    const QString cutefishDir = QDir::homePath() + QStringLiteral("/.config/cutefishos");
+    QDir().mkpath(aevisDir);
+    QDir().mkpath(cutefishDir);
 
-    // 2. Cutefish Appearance DBus Services
-    QDBusInterface iface1("com.cutefish.Appearance",
-                         "/com/cutefish/Appearance",
-                         "com.cutefish.Appearance",
-                         QDBusConnection::sessionBus());
-    if (iface1.isValid()) {
-        iface1.call("setWallpaper", filePath);
-        success = true;
-    }
-
-    QDBusInterface iface2("org.cutefish.Appearance",
-                          "/org/cutefish/Appearance",
-                          "org.cutefish.Appearance",
-                          QDBusConnection::sessionBus());
-    if (iface2.isValid()) {
-        iface2.call("setWallpaper", filePath);
-        success = true;
-    }
-
-    // 3. Desktop Shell DBus notification (both Aevis & Cutefish)
-    QDBusMessage msgAevis = QDBusMessage::createSignal("/org/aevis/Appearance",
-                                                      "org.aevis.Appearance",
-                                                      "wallpaperChanged");
-    msgAevis << filePath;
-    QDBusConnection::sessionBus().send(msgAevis);
-
-    QDBusMessage msg = QDBusMessage::createSignal("/com/cutefish/Appearance",
-                                                  "com.cutefish.Appearance",
-                                                  "wallpaperChanged");
-    msg << filePath;
-    QDBusConnection::sessionBus().send(msg);
-
-    // 4. Aevis settings file (~/.config/aevis/theme.conf)
-    QString aevisConfigDir = QDir::homePath() + "/.config/aevis";
-    QDir().mkpath(aevisConfigDir);
-    QSettings aevisSettings(aevisConfigDir + "/theme.conf", QSettings::IniFormat);
-    aevisSettings.beginGroup("Theme");
-    aevisSettings.setValue("wallpaper", filePath);
-    aevisSettings.endGroup();
+    QSettings aevisSettings(aevisDir + QStringLiteral("/theme.conf"), QSettings::IniFormat);
+    aevisSettings.setValue(QStringLiteral("Wallpaper"), filePath);
+    aevisSettings.setValue(QStringLiteral("BackgroundType"), 0);
     aevisSettings.sync();
 
-    // Cutefish settings file fallback (~/.config/cutefishos/cutefish.conf)
-    QString configDir = QDir::homePath() + "/.config/cutefishos";
-    QDir().mkpath(configDir);
-    QSettings cfSettings(configDir + "/cutefish.conf", QSettings::IniFormat);
-    cfSettings.beginGroup("Appearance");
-    cfSettings.setValue("wallpaper", filePath);
-    cfSettings.endGroup();
-    cfSettings.sync();
-    success = true;
+    QSettings cutefishSettings(cutefishDir + QStringLiteral("/theme.conf"), QSettings::IniFormat);
+    cutefishSettings.setValue(QStringLiteral("Wallpaper"), filePath);
+    cutefishSettings.setValue(QStringLiteral("BackgroundType"), 0);
+    cutefishSettings.sync();
 
-    // 5. Fallback for GNOME/Cinnamon/MATE environments
+    // 3. Fallback for GNOME/Cinnamon/MATE environments
     QProcess::execute("gsettings", { "set", "org.gnome.desktop.background", "picture-uri", QUrl::fromLocalFile(filePath).toString() });
     QProcess::execute("gsettings", { "set", "org.gnome.desktop.background", "picture-uri-dark", QUrl::fromLocalFile(filePath).toString() });
 
-    emit actionFeedback(tr("Desktop wallpaper set"), success);
-    return success;
+    emit actionFeedback(tr("Desktop wallpaper set"), true);
+    return true;
 }
 
 bool PhotosApp::deletePhoto(const QString &filePath)
