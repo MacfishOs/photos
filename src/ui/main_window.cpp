@@ -8,8 +8,9 @@ namespace cutefish::photos {
 
 PhotosRootView::PhotosRootView()
 {
+    m_header = addChild<ui::WindowHeader>(52.0);
+    m_headerBar = m_header->setContent<HeaderBar>();
     m_sidebar = addChild<SidebarView>();
-    m_headerBar = addChild<HeaderBar>();
     m_galleryView = addChild<GalleryView>();
 
     m_sidebar->categorySelected.connect([this](NavCategory cat) {
@@ -68,16 +69,16 @@ void PhotosRootView::layout()
     double sidebarWidth = 220.0;
     double headerHeight = 52.0;
 
-    if (m_sidebar) {
-        m_sidebar->setGeometry(ui::RectF(0, headerHeight, sidebarWidth, h - headerHeight));
+    if (m_header) {
+        m_header->setGeometry(ui::RectF(0, 0, w, headerHeight));
     }
 
-    if (m_headerBar) {
-        m_headerBar->setGeometry(ui::RectF(0, 0, w, headerHeight));
+    if (m_sidebar) {
+        m_sidebar->setGeometry(ui::RectF(0, headerHeight, sidebarWidth, std::max(0.0, h - headerHeight)));
     }
 
     if (m_galleryView) {
-        m_galleryView->setGeometry(ui::RectF(sidebarWidth, headerHeight, w - sidebarWidth, h - headerHeight));
+        m_galleryView->setGeometry(ui::RectF(sidebarWidth, headerHeight, w - sidebarWidth, std::max(0.0, h - headerHeight)));
     }
 
     if (m_imageViewer) {

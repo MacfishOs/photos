@@ -6,6 +6,7 @@
 #include "backend/photo_store.h"
 #include "ui/view.h"
 #include "ui/window.h"
+#include "ui/window_header.h"
 #include "ui/header_bar.h"
 #include "ui/sidebar_view.h"
 #include "ui/views/gallery_view.h"
@@ -25,6 +26,7 @@ protected:
 
 private:
     SidebarView* m_sidebar = nullptr;
+    ui::WindowHeader* m_header = nullptr;
     HeaderBar* m_headerBar = nullptr;
     GalleryView* m_galleryView = nullptr;
     ImageViewer* m_imageViewer = nullptr;
