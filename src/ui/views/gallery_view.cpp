@@ -15,9 +15,14 @@ namespace cutefish::photos {
 AlbumCardView::AlbumCardView(const AlbumItem& album)
     : m_album(album)
 {
-    m_imageView = addChild<ClickableImageView>(album.coverPhotoPath);
+    m_imageView = addChild<ClickableImageView>();
+    m_imageView->setThumbnail(true);
     m_imageView->setCornerRadius(22.0);
     m_imageView->setFillMode(ui::ImageView::FillMode::PreserveAspectCrop);
+    m_imageView->setSourceSize({220.0, 220.0});
+    if (!album.coverPhotoPath.empty()) {
+        m_imageView->setSource(album.coverPhotoPath);
+    }
     m_imageView->onClicked = [this]() {
         if (onClicked) onClicked();
     };
@@ -65,6 +70,8 @@ GalleryCardView::GalleryCardView(const PhotoItem& photo, double cardWidth)
     , m_cardWidth(cardWidth)
 {
     m_imageView = addChild<ClickableImageView>();
+    m_imageView->setThumbnail(true);
+    m_imageView->setSourceSize({cardWidth, cardWidth});
     m_imageView->setFillMode(ui::ImageView::FillMode::PreserveAspectCrop);
     m_imageView->setCornerRadius(8.0);
     m_imageView->onClicked = [this]() {
@@ -82,6 +89,8 @@ void GalleryCardView::setCardVisible(bool visible)
     setVisible(visible);
     if (visible && m_imageView && !m_loaded) {
         m_loaded = true;
+        m_imageView->setThumbnail(true);
+        m_imageView->setSourceSize({m_cardWidth, m_cardWidth});
         m_imageView->setSource(m_item.path);
     }
 }

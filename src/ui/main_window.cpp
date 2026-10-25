@@ -110,7 +110,20 @@ PhotosRootView::PhotosRootView()
     }));
 
     m_subs.push_back(m_imageViewer->wallpaperSet.connect([this]() {
+        if (!m_imageViewer->currentPhoto().path.empty()) {
+            PhotoStore::setAsWallpaper(m_imageViewer->currentPhoto().path);
+        }
         showToastMessage("Desktop Wallpaper Applied");
+    }));
+
+    m_subs.push_back(m_imageViewer->infoPanelToggled.connect([this]() {
+        toggleInfoPanel();
+    }));
+
+    m_subs.push_back(m_imageViewer->currentPhotoChanged.connect([this](const PhotoItem& item) {
+        if (m_showInfoPanel && m_infoPanel) {
+            m_infoPanel->setPhoto(&item);
+        }
     }));
 
     // Wire Slideshow signals
@@ -237,6 +250,7 @@ void PhotosRootView::showViewer(const PhotoItem& photo)
     }
 
     m_imageViewer->setPhoto(photo, idx, static_cast<int>(photos.size()));
+    m_imageViewer->setFocus();
 
     requestLayout();
     requestPaint();

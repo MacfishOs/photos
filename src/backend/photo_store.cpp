@@ -100,7 +100,9 @@ void PhotoStore::scanPhotos()
 
     std::vector<std::string> baseDirs = {
         homeDir + "/Pictures",
-        homeDir + "/Downloads"
+        homeDir + "/Downloads",
+        homeDir + "/Desktop",
+        homeDir + "/Documents"
     };
 
     std::vector<std::string> searchDirs;
@@ -346,7 +348,6 @@ void PhotoStore::applyFilterAndSort()
         } else if (m_category == NavCategory::FolderDesktop) {
             std::string dtPath = homeDir + "/Desktop";
             if (item.path.rfind(dtPath, 0) != 0) continue;
-        }
         } else if (m_category == NavCategory::FolderDocuments &&
                    item.path.find("/Documents") == std::string::npos &&
                    item.path.find("/documents") == std::string::npos) {

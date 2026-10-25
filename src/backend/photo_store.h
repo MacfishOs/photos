@@ -117,6 +117,7 @@ public:
 
     size_t countForCategory(NavCategory category) const;
 
+    bool isFavorite(const std::string& path) const { return m_favoritePaths.find(path) != m_favoritePaths.end(); }
     void toggleFavorite(const std::string& path);
     void moveToTrash(const std::string& path);
     void deletePermanently(const std::string& path);

@@ -15,6 +15,8 @@ InfoPanel::InfoPanel()
     m_headerLabel->setWeight(700);
 
     m_previewImage = addChild<ui::ImageView>();
+    m_previewImage->setThumbnail(true);
+    m_previewImage->setSourceSize({240, 160});
     m_previewImage->setCornerRadius(8.0);
     m_previewImage->setFillMode(ui::ImageView::FillMode::PreserveAspectCrop);
 
