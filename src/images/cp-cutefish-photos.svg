@@ -1,39 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.12"/>
-    </filter>
+    <linearGradient id="p1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5252"/>
+      <stop offset="100%" stop-color="#FF1744"/>
+    </linearGradient>
+    <linearGradient id="p2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9100"/>
+      <stop offset="100%" stop-color="#FF3D00"/>
+    </linearGradient>
+    <linearGradient id="p3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFEA00"/>
+      <stop offset="100%" stop-color="#FFAB00"/>
+    </linearGradient>
+    <linearGradient id="p4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#76FF03"/>
+      <stop offset="100%" stop-color="#00E676"/>
+    </linearGradient>
+    <linearGradient id="p5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E5FF"/>
+      <stop offset="100%" stop-color="#2979FF"/>
+    </linearGradient>
+    <linearGradient id="p6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#651FFF"/>
+      <stop offset="100%" stop-color="#D500F9"/>
+    </linearGradient>
   </defs>
-  <!-- Squircle Base -->
-  <rect x="4" y="4" width="56" height="56" rx="14" fill="#FFFFFF" filter="url(#shadow)"/>
-  <rect x="4" y="4" width="56" height="56" rx="14" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="0.5"/>
-  
-  <!-- 8 Harmonious Translucent Flat Petals -->
-  <g transform="rotate(0 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#FF453A" opacity="0.92"/>
+  <rect width="512" height="512" rx="112" fill="#FFFFFF"/>
+  <g transform="translate(256, 256)">
+    <ellipse cx="0" cy="-100" rx="42" ry="90" fill="url(#p1)" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-100" rx="42" ry="90" fill="url(#p2)" transform="rotate(60)"/>
+    <ellipse cx="0" cy="-100" rx="42" ry="90" fill="url(#p3)" transform="rotate(120)"/>
+    <ellipse cx="0" cy="-100" rx="42" ry="90" fill="url(#p4)" transform="rotate(180)"/>
+    <ellipse cx="0" cy="-100" rx="42" ry="90" fill="url(#p5)" transform="rotate(240)"/>
+    <ellipse cx="0" cy="-100" rx="42" ry="90" fill="url(#p6)" transform="rotate(300)"/>
+    <circle cx="0" cy="0" r="32" fill="#FFFFFF"/>
   </g>
-  <g transform="rotate(45 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#FF9F0A" opacity="0.92"/>
-  </g>
-  <g transform="rotate(90 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#FFD60A" opacity="0.92"/>
-  </g>
-  <g transform="rotate(135 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#30D158" opacity="0.92"/>
-  </g>
-  <g transform="rotate(180 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#64D2FF" opacity="0.92"/>
-  </g>
-  <g transform="rotate(225 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#0A84FF" opacity="0.92"/>
-  </g>
-  <g transform="rotate(270 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#5E5CE6" opacity="0.92"/>
-  </g>
-  <g transform="rotate(315 32 32)">
-    <rect x="28.75" y="13.5" width="6.5" height="18.5" rx="3.25" fill="#BF5AF2" opacity="0.92"/>
-  </g>
-
-  <!-- Clean Flat Center Cutout -->
-  <circle cx="32" cy="32" r="3.75" fill="#FFFFFF"/>
 </svg>
