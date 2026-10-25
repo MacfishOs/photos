@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Photos
+Name[zh_CN]=相册
+GenericName=Photo Viewer
+GenericName[zh_CN]=图片查看器
+Comment=Cutefish Photo Viewer and Gallery
+Comment[zh_CN]= Cutefish 图片查看与管理
+Exec=cutefish-photos %U
+TryExec=cutefish-photos
+Icon=cutefish-photos
+Terminal=false
+Type=Application
+StartupNotify=true
+StartupWMClass=cutefish-photos
+MimeType=image/jpeg;image/png;image/gif;image/bmp;image/webp;image/svg+xml;image/tiff;image/heic;image/avif;
+Categories=Graphics;Photography;Viewer;Qt;Cutefish;
