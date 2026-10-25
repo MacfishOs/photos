@@ -3,70 +3,120 @@
 
 #include "ui/header_bar.h"
 #include "ui/painter.h"
+#include "ui/theme.h"
 #include "ui/window.h"
 
 namespace cutefish::photos {
 
+static const char* kAppleFontFamily = "SF Pro Text, Adwaita Sans, Cantarell, Noto Sans, sans-serif";
+
+// ============================================================================
+// HeaderBar
+// ============================================================================
+
 HeaderBar::HeaderBar()
 {
-    m_titleLabel = addChild<ui::Label>("Photos");
-    m_titleLabel->setFontSize(16.0);
-    m_titleLabel->setWeight(700);
-    m_titleLabel->setColor(ui::Color(0xf5, 0xf5, 0xf7));
+    m_backBtn = addChild<ui::RoundImageButton>("apple-chevron-left", 28);
+    m_backBtn->setIconSize(16);
+    m_backBtn->setVisible(false);
+    m_backBtn->onClicked = [this]() { backClicked.emit(); };
 
-    m_searchField = addChild<ui::SearchField>("Search photos");
+    m_titleLabel = addChild<ui::Label>("Library");
+    m_titleLabel->setFontFamily(kAppleFontFamily);
+    m_titleLabel->setFontSize(15);
+    m_titleLabel->setWeight(700);
+
+    m_subtitleLabel = addChild<ui::Label>("All Photos");
+    m_subtitleLabel->setFontFamily(kAppleFontFamily);
+    m_subtitleLabel->setFontSize(11);
+    m_subtitleLabel->setColor(ui::Color::rgb(0x8E8E93));
+
+    m_infoBtn = addChild<ui::RoundImageButton>("apple-info", 28);
+    m_infoBtn->setIconSize(16);
+    m_infoBtn->onClicked = [this]() { infoPanelToggled.emit(); };
+
+    m_themeBtn = addChild<ui::RoundImageButton>("apple-moon", 28);
+    m_themeBtn->setIconSize(16);
+    m_themeBtn->onClicked = [this]() { themeToggled.emit(); };
+
+    m_searchField = addChild<ui::SearchField>();
+    m_searchField->setPlaceholder("Search");
+    m_searchField->onTextChanged = [this]() {
+        searchChanged.emit(m_searchField->text());
+    };
 }
 
-HeaderBar::~HeaderBar()
+void HeaderBar::setBackButtonVisible(bool visible)
 {
+    m_backBtn->setVisible(visible);
+    requestLayout();
+}
+
+void HeaderBar::setTitle(const std::string& title, const std::string& subtitle)
+{
+    m_titleLabel->setText(title);
+    m_subtitleLabel->setText(subtitle);
+    requestLayout();
+    requestPaint();
+}
+
+ui::SizeF HeaderBar::sizeHint() const
+{
+    return {800, 52};
 }
 
 void HeaderBar::layout()
 {
-    double w = geometry().width;
-    double h = geometry().height;
+    double w = localRect().width;
+    double h = localRect().height;
+    if (w <= 0 || h <= 0) return;
 
-    if (m_titleLabel) {
-        m_titleLabel->setGeometry(ui::RectF(24, (h - 24) / 2, 120, 24));
+    double x = 16.0;
+
+    // Back button
+    if (m_backBtn->isVisible()) {
+        m_backBtn->setGeometry({x, (h - 28.0) / 2.0, 28.0, 28.0});
+        x += 36.0;
+    } else {
+        m_backBtn->setGeometry({0, 0, 0, 0});
     }
 
-    if (m_searchField) {
-        double fieldWidth = 260.0;
-        double fieldHeight = 30.0;
-        m_searchField->setGeometry(ui::RectF(w - fieldWidth - 140, (h - fieldHeight) / 2, fieldWidth, fieldHeight));
-    }
+    // Title and Subtitle
+    m_titleLabel->setGeometry({x, 8.0, 220.0, 18.0});
+    m_subtitleLabel->setGeometry({x, 26.0, 220.0, 16.0});
+
+    // Right Action Cluster (Search, Info, Theme)
+    double rightX = w - 16.0;
+
+    double searchW = 160.0;
+    rightX -= searchW;
+    m_searchField->setGeometry({rightX, (h - 28.0) / 2.0, searchW, 28.0});
+    rightX -= 12.0;
+
+    m_themeBtn->setGeometry({rightX - 28.0, (h - 28.0) / 2.0, 28.0, 28.0});
+    rightX -= 36.0;
+
+    m_infoBtn->setGeometry({rightX - 28.0, (h - 28.0) / 2.0, 28.0, 28.0});
 }
 
 void HeaderBar::paint(ui::Painter& painter)
 {
-    ui::RectF bounds = localRect();
-    bool dark = true; // Dark mode default for photos
+    bool dark = ui::Theme::current().darkMode;
 
-    painter.fillRect(bounds, dark ? ui::Color(0x1a, 0x1a, 0x1e) : ui::Color(0xff, 0xff, 0xff));
-    painter.drawHorizontalLine(0, bounds.height - 1, bounds.width, dark ? ui::Color(0x2c, 0x2c, 0x32) : ui::Color(0xe0, 0xe0, 0xe4));
+    ui::Color bg = dark ? ui::Color::fromArgb(0xB025252A)
+                        : ui::Color::fromArgb(0xB0F8F8FA);
+    painter.fillRect(localRect(), bg);
 
-    // Slideshow button icon placeholder at top right
-    ui::RectF slideRect(bounds.width - 110, (bounds.height - 28) / 2, 32, 28);
-    painter.fillRoundedRect(slideRect, 6.0, ui::Color(0xff, 0xff, 0xff, 0x15));
-
-    // Delete button icon placeholder at top right
-    ui::RectF delRect(bounds.width - 64, (bounds.height - 28) / 2, 32, 28);
-    painter.fillRoundedRect(delRect, 6.0, ui::Color(0xff, 0xff, 0xff, 0x15));
+    ui::Color border = dark ? ui::Color::fromArgb(0x28FFFFFF)
+                            : ui::Color::fromArgb(0x18000000);
+    painter.drawHorizontalLine(0, localRect().width, localRect().height - 1, border);
 }
 
 void HeaderBar::pointerPress(const ui::PointerEvent& event)
 {
-    ui::RectF bounds = localRect();
-    ui::RectF slideRect(bounds.width - 110, (bounds.height - 28) / 2, 32, 28);
-    ui::RectF delRect(bounds.width - 64, (bounds.height - 28) / 2, 32, 28);
-
-    if (slideRect.contains(event.position)) {
-        slideshowClicked.emit();
-    } else if (delRect.contains(event.position)) {
-        deleteClicked.emit();
-    } else {
-        if (window())
-            window()->startMove();
+    (void)event;
+    if (window()) {
+        window()->startMove();
     }
 }
 

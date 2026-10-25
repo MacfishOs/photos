@@ -173,6 +173,8 @@ Item {
                     galleryView.selectedIndex = index
                     if (mouse.button === Qt.RightButton) {
                         contextMenu.popup()
+                    } else if (mouse.button === Qt.LeftButton) {
+                        galleryView.photoDoubleClicked(index)
                     }
                 }
 
