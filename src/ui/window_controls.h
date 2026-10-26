@@ -21,6 +21,7 @@ protected:
     void pointerEnter() override;
     void pointerLeave() override;
     void pointerPress(const ui::PointerEvent& event) override;
+    void pointerRelease(const ui::PointerEvent& event) override;
 
 private:
     enum class ButtonType {
